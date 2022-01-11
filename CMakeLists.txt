@@ -30,6 +30,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 set(${PROJECT_NAME}_LIB_SRC
+  src/icarus/ray.cxx
   src/icarus/vector.cxx 
 )
 
@@ -45,3 +46,5 @@ add_executable(
   ${PROJECT_NAME}_exe
     src/main.cxx
 )
+
+target_link_libraries(${PROJECT_NAME}_exe PRIVATE ${PROJECT_NAME})

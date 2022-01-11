@@ -3,8 +3,9 @@
 
 #include <cstddef>
 #include <initializer_list>
+#include <iostream>
 
-namespace icarus {
+namespace ic {
 
 class Vec3 {
  public:
@@ -31,7 +32,10 @@ class Vec3 {
   auto operator[](std::size_t const idx) noexcept -> ValueType&;
   auto operator[](std::size_t const idx) const noexcept -> ValueType const&;
 
-  [[nodiscard]] auto operator-() const noexcept -> Vec3;
+  auto operator-() const noexcept -> Vec3;
+
+  [[maybe_unused]] auto operator+=(Vec3 const& rhs) noexcept -> Vec3&;
+  [[maybe_unused]] auto operator-=(Vec3 const& rhs) noexcept -> Vec3&;
 
   [[maybe_unused]] auto operator*=(ValueType const coef) noexcept -> Vec3&;
   [[maybe_unused]] auto operator/=(ValueType const div) noexcept -> Vec3&;
@@ -41,15 +45,20 @@ class Vec3 {
 };
 
 auto operator+(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3;
+auto operator-(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3;
+
 auto operator*(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3;
 auto operator*(Vec3 const& lhs, Vec3::ValueType const rhs) noexcept -> Vec3;
 auto operator*(Vec3::ValueType const lhs, Vec3 const& rhs) noexcept -> Vec3;
+auto operator/(Vec3 const lhs, Vec3::ValueType const rhs) noexcept -> Vec3;
 
 auto DotProduct(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3::ValueType;
 auto CrossProduct(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3;
 
-auto Norm2(Vec3 const& vec) noexcept -> Vec3::ValueType;
+auto Norm(Vec3 const& vec) noexcept -> Vec3::ValueType;
 auto UnitVec3(Vec3 const& vec) noexcept -> Vec3;
+
+auto operator<<(std::ostream& ostrm, Vec3 const& vec) noexcept -> std::ostream&;
 
 }  // namespace icarus
 

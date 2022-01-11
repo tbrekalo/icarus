@@ -1,9 +1,10 @@
 #include "icarus/vector.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
-namespace icarus {
+namespace ic {
 
 Vec3::Vec3(ValueType const val) noexcept {
   std::fill(std::begin(vals_), std::end(vals_), val);
@@ -46,6 +47,18 @@ auto Vec3::operator-() const noexcept -> Vec3 {
   return dst;
 }
 
+auto Vec3::operator+=(Vec3 const& rhs) noexcept -> Vec3& {
+  for (auto idx = 0U; idx < 3U; ++idx) {
+    vals_[idx] += rhs.vals_[idx];
+  }
+
+  return *this;
+}
+
+auto Vec3::operator-=(Vec3 const& rhs) noexcept -> Vec3& {
+  return *this += -rhs;
+}
+
 auto Vec3::operator*=(ValueType const coef) noexcept -> Vec3& {
   for (auto& val : *this) {
     val *= coef;
@@ -59,12 +72,14 @@ auto Vec3::operator/=(ValueType const div) noexcept -> Vec3& {
 }
 
 auto operator+(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3 {
-  auto dst = Vec3();
-  for (auto idx = 0U; idx < 3U; ++idx) {
-    return dst[idx] = lhs[idx] + rhs[idx];
-  }
+  auto dst = lhs;
+  dst += rhs;
 
   return dst;
+}
+
+auto operator-(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3 {
+  return lhs + (-rhs);
 }
 
 auto operator*(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3 {
@@ -90,6 +105,13 @@ auto operator*(Vec3::ValueType const lhs, Vec3 const& rhs) noexcept -> Vec3 {
   return dst;
 }
 
+auto operator/(Vec3 const lhs, Vec3::ValueType const rhs) noexcept -> Vec3 {
+  auto dst = lhs;
+  dst /= rhs;
+
+  return dst;
+}
+
 auto DotProduct(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3::ValueType {
   return std::transform_reduce(lhs.begin(), lhs.end(), rhs.begin(),
                                Vec3::ValueType(0), std::plus<Vec3::ValueType>(),
@@ -102,10 +124,17 @@ auto CrossProduct(Vec3 const& lhs, Vec3 const& rhs) noexcept -> Vec3 {
               lhs[0] * rhs[1] - lhs[1] * rhs[0]};
 }
 
-auto Norm2(Vec3 const& vec) noexcept -> Vec3::ValueType {
-  return DotProduct(vec, vec) / 3.f;
+auto Norm(Vec3 const& vec) noexcept -> Vec3::ValueType {
+  return std::sqrt(DotProduct(vec, vec));
 }
 
-auto UnitVec3(Vec3 const& lhs) noexcept -> Vec3 {}
+auto UnitVec3(Vec3 const& vec) noexcept -> Vec3 {
+  return vec * (1.f / Norm(vec));
+}
 
-}  // namespace icarus
+auto operator<<(std::ostream& ostrm, Vec3 const& vec) noexcept
+    -> std::ostream& {
+  return ostrm << vec[0] << ' ' << vec[1] << ' ' << vec[2];
+}
+
+}  // namespace ic
