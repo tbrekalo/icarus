@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.19)
 include(cmake/Warnings.cmake)
 include(FetchContent)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-
 find_program(CLANG_FOUND clang)
 find_program(CLANGXX_FOUND clang++)
 
@@ -29,7 +25,22 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fno-omit-
 
 project(icarus VERSION 0.1 LANGUAGES C CXX)
 
-# add_library({PROJECT_NAME} STATIC)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+
+set(${PROJECT_NAME}_LIB_SRC
+  src/icarus/vector.cxx 
+)
+
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_LIB_SRC})
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+set_default_warnings(${PROJECT_NAME} PUBLIC FALSE)
+
 add_executable(
   ${PROJECT_NAME}_exe
     src/main.cxx
