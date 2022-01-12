@@ -9,7 +9,7 @@ namespace ic {
 
 class Vec3 {
  public:
-  using ValueType = float;
+  using ValueType = double;
 
   using PointerType = ValueType*;
   using ConstPointerType = ValueType const*;

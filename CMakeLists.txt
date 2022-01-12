@@ -30,7 +30,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 set(${PROJECT_NAME}_LIB_SRC
+  src/icarus/camera.cxx
+  src/icarus/hit.cxx
+  src/icarus/image.cxx
   src/icarus/ray.cxx
+  src/icarus/sphere.cxx
   src/icarus/vector.cxx 
 )
 
@@ -40,7 +44,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-set_default_warnings(${PROJECT_NAME} PUBLIC FALSE)
+set_default_warnings(${PROJECT_NAME} PRIVATE FALSE)
 
 add_executable(
   ${PROJECT_NAME}_exe

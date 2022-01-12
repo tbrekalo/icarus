@@ -1,7 +1,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <optional>
 
+#include "icarus/camera.hpp"
+#include "icarus/image.hpp"
 #include "icarus/ray.hpp"
 #include "icarus/vector.hpp"
 
@@ -29,31 +32,13 @@ int main(void) {
   constexpr auto kImageWidth =
       static_cast<std::int32_t>(kAspectRation * kImageHeight);
 
-  constexpr auto kViewportHeight = 2.f;
-  constexpr auto kViewportWidth = kViewportHeight * kAspectRation;
+  auto hittables = std::vector<std::unique_ptr<ic::Hittable>>();
 
-  constexpr auto kFocalLength = 1.f;
+  auto const kImgDims =
+      ic::ImageDims{.width = kImageWidth, .height = kImageHeight};
+  auto const camera = ic::Camera(ic::Vec3(0.0), ic::Vec3{0.0, 0.0, -1.0});
 
-  auto const kOrigin = ic::Vec3(0.f);
-  auto const kHorizontalAxis = ic::Vec3{kViewportWidth, 0.f, 0.f};
-  auto const kVerticalAxis = ic::Vec3{0.f, kViewportHeight, 0.f};
-
-  auto const kLowerLeft = kOrigin - (kHorizontalAxis / 2) -
-                          (kVerticalAxis / 2) -
-                          ic::Vec3{0.f, 0.f, kFocalLength};
-
-  std::cout << "P3\n" << kImageWidth << ' ' << kImageHeight << "\n255\n";
-  for (auto y = kImageHeight - 1; y >= 0; --y) {
-    for (auto x = 0; x < kImageWidth; ++x) {
-      auto const kYDir = static_cast<ic::Vec3::ValueType>(y) / kImageHeight;
-      auto const kXDir = static_cast<ic::Vec3::ValueType>(x) / kImageWidth;
-      auto const kRay =
-          ic::Ray(kOrigin, kLowerLeft + (kYDir * kVerticalAxis) +
-                               (kXDir * kHorizontalAxis) - kOrigin);
-
-      WriteColor(std::cout, RayColor(kRay));
-    }
-  }
+  std::cout << camera.Render(hittables, kImgDims);
 
   return EXIT_SUCCESS;
 }
