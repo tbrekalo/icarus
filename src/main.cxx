@@ -1,11 +1,14 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <optional>
 
 #include "icarus/camera.hpp"
+#include "icarus/hit.hpp"
 #include "icarus/image.hpp"
 #include "icarus/ray.hpp"
+#include "icarus/sphere.hpp"
 #include "icarus/vector.hpp"
 
 [[maybe_unused]] auto WriteColor(std::ostream& os, ic::Vec3 const& color)
@@ -33,6 +36,9 @@ int main(void) {
       static_cast<std::int32_t>(kAspectRation * kImageHeight);
 
   auto hittables = std::vector<std::unique_ptr<ic::Hittable>>();
+  hittables.emplace_back(
+      std::make_unique<ic::Sphere>(ic::Vec3{0.0, 0.0, -1.0}, 0.5));
+
 
   auto const kImgDims =
       ic::ImageDims{.width = kImageWidth, .height = kImageHeight};

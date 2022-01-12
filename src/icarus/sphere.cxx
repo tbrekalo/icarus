@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 namespace ic {
 
 Sphere::Sphere(Vec3 const center, Vec3::ValueType const radius)
@@ -11,11 +13,11 @@ auto Sphere::CheckHit(Ray const& ray) const noexcept
     -> std::optional<HitRecord> {
   auto const oc = ray.origin - center_;
   auto const a = DotProduct(ray.dir, ray.dir);
-  auto const h = DotProduct(ray.dir, oc);
+  auto const h = DotProduct(oc, ray.dir);
   auto const c = DotProduct(oc, oc) - radius_ * radius_;
 
-  auto const determinant = std::sqrt(h - a * c);
-  if (determinant > 0) {
+  auto const determinant = h * h - a * c;
+  if (determinant >= 0) {
     auto const t = (-h - std::sqrt(determinant)) / a;
     if (t > 0) {
       return HitRecord{.t = t};

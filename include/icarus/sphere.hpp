@@ -15,6 +15,8 @@ class Sphere : public Hittable {
   auto Center() const noexcept -> Vec3;
   auto Radius() const noexcept -> Vec3::ValueType;
 
+  ~Sphere() = default;
+
  private:
   Vec3 center_;
   Vec3::ValueType radius_;

@@ -15,7 +15,9 @@ struct HitRecord {
 class Hittable {
  public:
   [[nodiscard]] auto virtual CheckHit(Ray const& ray) const noexcept
-      -> std::optional<HitRecord>;
+      -> std::optional<HitRecord> = 0;
+
+  virtual ~Hittable() = default;
 };
 
 };  // namespace ic

@@ -3,6 +3,7 @@
 
 #include <span>
 #include <vector>
+#include <memory>
 
 #include "icarus/hit.hpp"
 #include "icarus/image.hpp"
