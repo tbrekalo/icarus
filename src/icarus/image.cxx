@@ -1,5 +1,6 @@
 #include "icarus/image.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace ic {
@@ -8,9 +9,17 @@ namespace detail {
 
 [[maybe_unused]] auto WriteColor(std::ostream& ostrm, Vec3 const& color)
     -> std::ostream& {
-  ostrm << static_cast<std::uint32_t>(std::ceil(255 * color[0])) << ' ';
-  ostrm << static_cast<std::uint32_t>(std::ceil(255 * color[1])) << ' ';
-  ostrm << static_cast<std::uint32_t>(std::ceil(255 * color[2])) << '\n';
+  ostrm << static_cast<std::uint32_t>(
+               std::ceil(255 * std::clamp(std::sqrt(color[0]), 0., .999)))
+        << ' ';
+
+  ostrm << static_cast<std::uint32_t>(
+               std::ceil(255 * std::clamp(std::sqrt(color[1]), 0., .999)))
+        << ' ';
+
+  ostrm << static_cast<std::uint32_t>(
+               std::ceil(255 * std::clamp(std::sqrt(color[2]), 0., .999)))
+        << '\n';
 
   return ostrm;
 }

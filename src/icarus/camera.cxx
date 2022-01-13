@@ -1,6 +1,41 @@
 #include "icarus/camera.hpp"
 
+#include <random>
+
 namespace ic {
+
+namespace detail {
+
+template <class RngGen>
+auto PathTrace(std::span<std::unique_ptr<Hittable>> const& world, Ray const ray,
+               std::uint32_t depth, RngGen&& rng_gen) -> Vec3 {
+  if (depth == 0) {
+    return Vec3(0);
+  } else {
+    for (auto const& it : world) {
+      if (auto const hit = it->CheckHit(
+              ray, RayHitBounds{
+                       .lower_bound = 0.001,
+                       .upper_bound = std::numeric_limits<double>::max(),
+                   })) {
+        auto in_unit_sphere = RngVec(0.0, 1.0, rng_gen);
+        while (DotProduct(in_unit_sphere, in_unit_sphere) > 1.0) {
+          in_unit_sphere = RngVec(0.0, 1.0, rng_gen);
+        }
+
+        auto target = hit->point + hit->normal + UnitVec3(in_unit_sphere);
+        return 0.5 * PathTrace(world, Ray(hit->point, target - hit->point),
+                               depth - 1U, rng_gen);
+      }
+    }
+  }
+
+  auto rng_dir = UnitVec3(ray.dir);
+  auto t = 0.5 * (rng_dir.y() + 1.0);
+  return (1.0 - t) * Vec3(1.0) + t * Vec3{0.5, 0.7, 1.0};
+}
+
+}  // namespace detail
 
 Camera::Camera(Vec3 const position, Vec3 const target) noexcept
     : position_(position), direction_(target - position) {}
@@ -22,31 +57,32 @@ auto Camera::Render(std::span<std::unique_ptr<Hittable>> hittables,
   auto const kLowerLeft = position_ - (kHorizontalAxis / 2.0) -
                           (kVerticalAxis / 2.0) - Vec3{0.0, 0.0, 1.0};
 
-  auto const color_ray = [&](Ray const& ray) noexcept -> ic::Vec3 {
-    for (auto const& it : hittables) {
-      auto const hit = it->CheckHit(ray);
-      if (hit) {
-        return ic::Vec3{1.0, 0.0, 0.0};
-      }
+  auto rng_gen = std::mt19937();
+  auto real_distr = std::uniform_real_distribution<>(-1.0, 1.0);
+
+  auto const sample_area = [&](std::uint32_t const x, std::uint32_t const y,
+                               std::uint32_t const n) -> Vec3 {
+    auto dst = Vec3(0);
+    for (auto nth_sample = 0U; nth_sample < n; ++nth_sample) {
+      auto const xx = x + real_distr(rng_gen);
+      auto const yy = y + real_distr(rng_gen);
+
+      auto const kHorizontalCoef = xx / (img_dims.width - 1U);
+      auto const kVerticalCoef = yy / (img_dims.height - 1U);
+
+      dst += detail::PathTrace(
+          hittables,
+          Ray(position_, kLowerLeft + (kVerticalCoef * kVerticalAxis) +
+                             (kHorizontalCoef * kHorizontalAxis) - position_),
+          10U, rng_gen);
     }
 
-    auto const kRayUnitDir = UnitVec3(ray.dir);
-    auto const kT = 0.5 * (kRayUnitDir.y() + 1.0f);
-
-    return (1.f - kT) * Vec3(1.0) + kT * Vec3{0.5, 0.7, 1.0};
+    return dst / n;
   };
 
   for (auto h = 0U; h < img_dims.height; ++h) {
     for (auto v = 0U; v < img_dims.width; ++v) {
-      auto const kHorizontalCoef =
-          static_cast<Vec3::ValueType>(v) / (img_dims.width - 1U);
-      auto const kVerticalCoef =
-          static_cast<Vec3::ValueType>(img_dims.height - 1U - h) /
-          (img_dims.height - 1U);
-
-      dst.emplace_back(color_ray(
-          Ray(position_, kLowerLeft + (kVerticalCoef * kVerticalAxis) +
-                             (kHorizontalCoef * kHorizontalAxis) - position_)));
+      dst.emplace_back(sample_area(v, (img_dims.height - 1U - h), 16));
     }
   }
 

@@ -9,7 +9,8 @@ class Sphere : public Hittable {
  public:
   Sphere(Vec3 const center, Vec3::ValueType const radius);
 
-  [[nodiscard]] auto CheckHit(Ray const& ray) const noexcept
+  [[nodiscard]] auto CheckHit(Ray const& ray,
+                              RayHitBounds const bounds) const noexcept
       -> std::optional<HitRecord> override;
 
   auto Center() const noexcept -> Vec3;

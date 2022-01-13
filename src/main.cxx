@@ -38,7 +38,8 @@ int main(void) {
   auto hittables = std::vector<std::unique_ptr<ic::Hittable>>();
   hittables.emplace_back(
       std::make_unique<ic::Sphere>(ic::Vec3{0.0, 0.0, -1.0}, 0.5));
-
+  hittables.emplace_back(
+      std::make_unique<ic::Sphere>(ic::Vec3{0.0, -100.5, -1.0}, 100.0));
 
   auto const kImgDims =
       ic::ImageDims{.width = kImageWidth, .height = kImageHeight};

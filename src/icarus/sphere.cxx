@@ -1,7 +1,6 @@
 #include "icarus/sphere.hpp"
 
 #include <cmath>
-
 #include <iostream>
 
 namespace ic {
@@ -9,7 +8,7 @@ namespace ic {
 Sphere::Sphere(Vec3 const center, Vec3::ValueType const radius)
     : center_(center), radius_(radius) {}
 
-auto Sphere::CheckHit(Ray const& ray) const noexcept
+auto Sphere::CheckHit(Ray const& ray, RayHitBounds const bounds) const noexcept
     -> std::optional<HitRecord> {
   auto const oc = ray.origin - center_;
   auto const a = DotProduct(ray.dir, ray.dir);
@@ -18,10 +17,27 @@ auto Sphere::CheckHit(Ray const& ray) const noexcept
 
   auto const determinant = h * h - a * c;
   if (determinant >= 0) {
-    auto const t = (-h - std::sqrt(determinant)) / a;
-    if (t > 0) {
-      return HitRecord{.t = t};
+    auto t = (-h - std::sqrt(determinant)) / a;
+    if (t < bounds.lower_bound || bounds.upper_bound < t) {
+      t = (-h + std::sqrt(determinant)) / a;
+      if (t < bounds.lower_bound || bounds.upper_bound < t) {
+        return std::nullopt;
+      }
     }
+
+    auto const point = ray.At(t);
+
+    auto face = SurfaceFace();
+    auto outward_normal = UnitVec3(point - center_);
+    if (DotProduct(ray.dir, outward_normal) >= 0) {
+      face = SurfaceFace::kBack;
+      outward_normal *= -1;
+    } else {
+      face = SurfaceFace::kFront;
+    }
+
+    return HitRecord{
+        .t = t, .point = point, .normal = outward_normal, .face = face};
   }
 
   return std::nullopt;

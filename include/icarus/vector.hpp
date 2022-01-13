@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <iostream>
+#include <random>
 
 namespace ic {
 
@@ -60,6 +61,13 @@ auto UnitVec3(Vec3 const& vec) noexcept -> Vec3;
 
 auto operator<<(std::ostream& ostrm, Vec3 const& vec) noexcept -> std::ostream&;
 
-}  // namespace icarus
+template <class RngGen>
+auto RngVec(Vec3::ValueType const lo, Vec3::ValueType const hi,
+            RngGen&& rng_gen) -> Vec3 {
+  auto distr = std::uniform_real_distribution<>(lo, hi);
+  return Vec3{distr(rng_gen), distr(rng_gen), distr(rng_gen)};
+}
+
+}  // namespace ic
 
 #endif /* ICARUS_VECTOR_HPP_ */

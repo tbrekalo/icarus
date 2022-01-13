@@ -8,13 +8,19 @@
 
 namespace ic {
 
+enum class SurfaceFace : std::uint8_t { kBack, kFront };
+
 struct HitRecord {
   Vec3::ValueType t;
+  Vec3 point;
+  Vec3 normal;
+
+  SurfaceFace face;
 };
 
 class Hittable {
  public:
-  [[nodiscard]] auto virtual CheckHit(Ray const& ray) const noexcept
+  [[nodiscard]] auto virtual CheckHit(Ray const& ray, RayHitBounds const bounds) const noexcept
       -> std::optional<HitRecord> = 0;
 
   virtual ~Hittable() = default;
