@@ -1,7 +1,9 @@
 #ifndef ICARUS_HIT_HPP_
 #define ICARUS_HIT_HPP_
 
+#include <memory>
 #include <optional>
+#include <type_traits>
 
 #include "icarus/ray.hpp"
 #include "icarus/vector.hpp"
@@ -18,12 +20,35 @@ struct HitRecord {
   SurfaceFace face;
 };
 
-class Hittable {
- public:
-  [[nodiscard]] auto virtual CheckHit(Ray const& ray, RayHitBounds const bounds) const noexcept
-      -> std::optional<HitRecord> = 0;
+template <class Fn, class T>
+using IsCheckHit = std::is_invocable_r<std::optional<HitRecord>, Fn, T const&,
+                                       Ray const&, RayHitBounds const&>;
 
-  virtual ~Hittable() = default;
+template <class Fn, class T>
+constexpr auto IsCheckHitV = IsCheckHit<Fn, T>::value;
+
+class HittableProxy {
+  using RedirectSig = std::optional<HitRecord>(void*, Ray const&,
+                                               RayHitBounds const&);
+  using RedirectSigPtr = std::add_pointer_t<RedirectSig>;
+
+ public:
+  template <class T, std::enable_if_t<std::is_pointer_v<T>, std::uint8_t> = 0U>
+  HittableProxy(T&& t)
+      : impl_([](void* repr, Ray const& ray,
+                 RayHitBounds const& bounds) -> std::optional<HitRecord> {
+          return CheckHit(*static_cast<T>(repr), ray, bounds);
+        }),
+        obj_ptr_(t) {}
+
+  [[nodiscard]] auto operator()(Ray const& ray,
+                                RayHitBounds const& bounds) const noexcept {
+    return impl_(obj_ptr_, ray, bounds);
+  }
+
+ private:
+  RedirectSigPtr impl_;
+  void* obj_ptr_;
 };
 
 };  // namespace ic

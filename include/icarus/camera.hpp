@@ -3,7 +3,6 @@
 
 #include <span>
 #include <vector>
-#include <memory>
 
 #include "icarus/hit.hpp"
 #include "icarus/image.hpp"
@@ -20,7 +19,7 @@ class Camera {
  public:
   Camera(Vec3 const position, Vec3 const target) noexcept;
 
-  [[nodiscard]] auto Render(std::span<std::unique_ptr<Hittable>> hittables,
+  [[nodiscard]] auto Render(std::span<HittableProxy> hittables,
                             ImageDims const img_dims) const -> PpmImage;
 
  private:
