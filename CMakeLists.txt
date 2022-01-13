@@ -35,6 +35,7 @@ set(${PROJECT_NAME}_LIB_SRC
   src/icarus/image.cxx
   src/icarus/ray.cxx
   src/icarus/sphere.cxx
+  src/icarus/triangle.cxx
   src/icarus/vector.cxx 
 )
 
