@@ -21,12 +21,12 @@ int main(void) {
       static_cast<std::int32_t>(kAspectRation * kImageHeight);
 
   auto const spheres = std::vector<ic::Sphere>{
-      ic::Sphere{.center = ic::Vec3{0.0, 0.0, -1.0}, .radius = 0.5}};
-  // ic::Sphere{.center = ic::Vec3{0.0, -100.5, -1.0}, .radius = 100}};
+      ic::Sphere{.center = ic::Vec3{0.0, 0.0, -1.0}, .radius = 0.5},
+      ic::Sphere{.center = ic::Vec3{0.0, -100.5, -1.0}, .radius = 100}};
 
   auto const trigs = std::vector<ic::Triangle>{ic::Triangle{
       .points = {ic::Vec3{0.0, -2.0, -2.0}, ic::Vec3{2.0, 0.0, -2.0},
-                 ic::Vec3{0.0, 2.0, -2.0}}}};
+                 ic::Vec3{0.0, 2.0, -4.0}}}};
 
   auto proxies = std::vector<ic::HittableProxy>();
 

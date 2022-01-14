@@ -28,7 +28,7 @@ auto DetermineRelPos(Vec3 const& ref, Vec3 const& query) -> RelPointPos {
     -> std::optional<HitRecord> {
   auto const v1 = trig.points[1] - trig.points[0];
   auto const v2 = trig.points[2] - trig.points[0];
-  auto const normal = UnitVec3(CrossProduct(v1, v2));
+  auto const normal = UnitVec3(CrossProduct(v2, v1));
 
   if (std::abs(DotProduct(ray.dir, normal)) > 1e-12) {
     auto const t = DotProduct((trig.points[0] - ray.origin), normal) /
@@ -54,8 +54,15 @@ auto DetermineRelPos(Vec3 const& ref, Vec3 const& query) -> RelPointPos {
         }
       }
 
-      return HitRecord{
-          .t = t, .point = hit_point, .normal = UnitVec3(hit_point + normal)};
+      auto face = SurfaceFace::kFront;
+      if (DotProduct(ray.dir, normal) > 0.0) {
+        face = SurfaceFace::kBack;
+      }
+
+      return HitRecord{.t = t,
+                       .point = hit_point,
+                       .normal = UnitVec3(hit_point + normal),
+                       .face = face};
     }
   }
 
