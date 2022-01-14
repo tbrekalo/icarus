@@ -6,6 +6,7 @@
 
 #include "icarus/hit.hpp"
 #include "icarus/image.hpp"
+#include "icarus/material.hpp"
 #include "icarus/vector.hpp"
 
 namespace ic {
@@ -19,8 +20,9 @@ class Camera {
  public:
   Camera(Vec3 const position, Vec3 const target) noexcept;
 
-  [[nodiscard]] auto Render(std::span<HittableProxy> hittables,
-                            ImageDims const img_dims) const -> PpmImage;
+  [[nodiscard]] auto Render(
+      std::span<std::pair<HittableProxy, MaterialProxy>> hittables,
+      ImageDims const img_dims) const -> PpmImage;
 
  private:
   Vec3 position_;

@@ -33,6 +33,7 @@ set(${PROJECT_NAME}_LIB_SRC
   src/icarus/camera.cxx
   src/icarus/hit.cxx
   src/icarus/image.cxx
+  src/icarus/material.cxx
   src/icarus/ray.cxx
   src/icarus/sphere.cxx
   src/icarus/triangle.cxx

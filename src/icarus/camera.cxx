@@ -7,40 +7,30 @@ namespace ic {
 namespace detail {
 
 template <class RngGen>
-auto PathTrace(std::span<HittableProxy> const& world, Ray const ray,
-               std::uint32_t depth, RngGen&& rng_gen) -> Vec3 {
+auto PathTrace(std::span<std::pair<HittableProxy, MaterialProxy>>& world,
+               Ray const ray, std::uint32_t depth, RngGen&& rng_gen) -> Vec3 {
   if (depth == 0) {
     return Vec3(0);
   } else {
-    for (auto const& it : world) {
-      if (auto const hit =
-              it(ray, RayHitBounds{
-                          .lower_bound = 0.001,
-                          .upper_bound = std::numeric_limits<double>::max(),
-                      })) {
-        auto in_unit_sphere = RngVec(0.0, 1.0, rng_gen);
-        while (DotProduct(in_unit_sphere, in_unit_sphere) > 1.0) {
-          in_unit_sphere = RngVec(0.0, 1.0, rng_gen);
+    for (auto& [hittable, material] : world) {
+      if (auto const hit = hittable(
+              ray, RayHitBounds{
+                       .lower_bound = 0.001,
+                       .upper_bound = std::numeric_limits<double>::max(),
+                   })) {
+        if (auto const def_ray = material(ray, *hit)) {
+          return def_ray->attenuation *
+                 PathTrace(world, def_ray->scattered, depth - 1U, rng_gen);
+        } else {
+          return Vec3(0);
         }
-
-        if (DotProduct(in_unit_sphere, hit->normal) < 0) {
-          in_unit_sphere *= -1.0;
-        }
-
-        auto target = hit->point + hit->normal + UnitVec3(in_unit_sphere);
-        return 0.5 *
-               PathTrace(world,
-                         Ray{.origin = hit->point, .dir = target - hit->point},
-                         depth - 1U, rng_gen);
-
-        return Vec3{1.0, 0.0};
       }
     }
-  }
 
-  auto rng_dir = UnitVec3(ray.dir);
-  auto t = 0.5 * (rng_dir.y() + 1.0);
-  return (1.0 - t) * Vec3(1.0) + t * Vec3{0.5, 0.7, 1.0};
+    auto unit_direction = UnitVec3(ray.dir);
+    auto t = 0.5 * (unit_direction.y() + 1.0);
+    return (1.0 - t) * Vec3(1.0) + t * Vec3{0.5, 0.7, 1.0};
+  }
 }
 
 }  // namespace detail
@@ -48,8 +38,9 @@ auto PathTrace(std::span<HittableProxy> const& world, Ray const ray,
 Camera::Camera(Vec3 const position, Vec3 const target) noexcept
     : position_(position), direction_(target - position) {}
 
-auto Camera::Render(std::span<HittableProxy> hittables,
-                    ImageDims const img_dims) const -> PpmImage {
+auto Camera::Render(
+    std::span<std::pair<HittableProxy, MaterialProxy>> hittables,
+    ImageDims const img_dims) const -> PpmImage {
   auto dst = decltype(PpmImage::rgb_pixels)();
   dst.reserve(img_dims.height * img_dims.width);
 

@@ -8,6 +8,7 @@
 #include "icarus/camera.hpp"
 #include "icarus/hit.hpp"
 #include "icarus/image.hpp"
+#include "icarus/material.hpp"
 #include "icarus/ray.hpp"
 #include "icarus/sphere.hpp"
 #include "icarus/triangle.hpp"
@@ -20,6 +21,10 @@ int main(void) {
   constexpr auto kImageWidth =
       static_cast<std::int32_t>(kAspectRation * kImageHeight);
 
+  auto metal = ic::Metal{.albedo = ic::Vec3{0.32, 0.34, 0.35}};
+  auto lam1 = ic::Lambertian{.albedo = ic::Vec3{0.82, 0.31, 0.19}};
+  auto lam2 = ic::Lambertian{.albedo = ic::Vec3{0.16, 0.08, 0.08}};
+
   auto const spheres = std::vector<ic::Sphere>{
       ic::Sphere{.center = ic::Vec3{0.0, 0.0, -1.0}, .radius = 0.5},
       ic::Sphere{.center = ic::Vec3{0.0, -100.5, -1.0}, .radius = 100}};
@@ -28,25 +33,18 @@ int main(void) {
       .points = {ic::Vec3{0.0, -2.0, -2.0}, ic::Vec3{2.0, 0.0, -2.0},
                  ic::Vec3{0.0, 2.0, -4.0}}}};
 
-  auto proxies = std::vector<ic::HittableProxy>();
-
-  proxies.reserve(spheres.size() + trigs.size());
-  std::generate_n(std::back_inserter(proxies), spheres.size(),
-                  [ptr = spheres.data()]() mutable -> ic::HittableProxy {
-                    return ic::HittableProxy(ptr++);
-                  });
-
-  std::generate_n(std::back_inserter(proxies), trigs.size(),
-                  [ptr = trigs.data()]() mutable -> ic::HittableProxy {
-                    return ic::HittableProxy(ptr++);
-                  });
+  auto world = std::vector<std::pair<ic::HittableProxy, ic::MaterialProxy>>{
+      std::make_pair(ic::HittableProxy(&spheres[0]), ic::MaterialProxy(&lam1)),
+      std::make_pair(ic::HittableProxy(&spheres[1]), ic::MaterialProxy(&lam2)),
+      std::make_pair(ic::HittableProxy(&trigs[0]), ic::MaterialProxy(&metal)),
+  };
 
   auto const kImgDims =
       ic::ImageDims{.width = kImageWidth, .height = kImageHeight};
   auto const camera =
       ic::Camera(ic::Vec3{0.0, 0.0, 1.0}, ic::Vec3{0.0, 0.0, -1.0});
 
-  std::cout << camera.Render(proxies, kImgDims);
+  std::cout << camera.Render(world, kImgDims);
 
   return EXIT_SUCCESS;
 }
