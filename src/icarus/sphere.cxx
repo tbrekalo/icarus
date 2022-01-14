@@ -1,7 +1,6 @@
 #include "icarus/sphere.hpp"
 
 #include <cmath>
-#include <iostream>
 
 namespace ic {
 

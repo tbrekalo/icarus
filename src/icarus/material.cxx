@@ -46,9 +46,9 @@ auto Metal::operator()(Ray const& in_ray, HitRecord const& hit_rec) noexcept
     return std::nullopt;
   }
 
-  return ScatterRecord{.scattered = Ray{
-                           .origin = hit_rec.point,
-                       }};
+  return ScatterRecord{
+      .scattered = Ray{.origin = hit_rec.point, .dir = reflected_dir},
+      .attenuation = albedo};
 }
 
 }  // namespace ic

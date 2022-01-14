@@ -21,7 +21,8 @@ int main(void) {
   constexpr auto kImageWidth =
       static_cast<std::int32_t>(kAspectRation * kImageHeight);
 
-  auto metal = ic::Metal{.albedo = ic::Vec3{0.32, 0.34, 0.35}};
+  auto metal1 = ic::Metal{.albedo = ic::Vec3{0.8, 0.8, 0.8}};
+  auto metal2 = ic::Metal{.albedo = ic::Vec3{0.32, 0.34, 0.2}};
   auto lam1 = ic::Lambertian{.albedo = ic::Vec3{0.82, 0.31, 0.19}};
   auto lam2 = ic::Lambertian{.albedo = ic::Vec3{0.16, 0.08, 0.08}};
 
@@ -31,12 +32,13 @@ int main(void) {
 
   auto const trigs = std::vector<ic::Triangle>{ic::Triangle{
       .points = {ic::Vec3{0.0, -2.0, -2.0}, ic::Vec3{2.0, 0.0, -2.0},
-                 ic::Vec3{0.0, 2.0, -4.0}}}};
+                 ic::Vec3{0.0, 2.0, -2.0}}}};
 
   auto world = std::vector<std::pair<ic::HittableProxy, ic::MaterialProxy>>{
-      std::make_pair(ic::HittableProxy(&spheres[0]), ic::MaterialProxy(&lam1)),
+      std::make_pair(ic::HittableProxy(&spheres[0]),
+                     ic::MaterialProxy(&metal2)),
       std::make_pair(ic::HittableProxy(&spheres[1]), ic::MaterialProxy(&lam2)),
-      std::make_pair(ic::HittableProxy(&trigs[0]), ic::MaterialProxy(&metal)),
+      std::make_pair(ic::HittableProxy(&trigs[0]), ic::MaterialProxy(&metal1)),
   };
 
   auto const kImgDims =

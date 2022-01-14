@@ -74,7 +74,7 @@ auto Camera::Render(
           Ray{.origin = position_,
               .dir = kLowerLeft + (kVerticalCoef * kVerticalAxis) +
                      (kHorizontalCoef * kHorizontalAxis) - position_},
-          10U, rng_gen);
+          200U, rng_gen);
     }
 
     return dst / n;
@@ -82,7 +82,7 @@ auto Camera::Render(
 
   for (auto h = 0U; h < img_dims.height; ++h) {
     for (auto v = 0U; v < img_dims.width; ++v) {
-      dst.emplace_back(sample_area(v, (img_dims.height - 1U - h), 16));
+      dst.emplace_back(sample_area(v, (img_dims.height - 1U - h), 32U));
     }
   }
 
