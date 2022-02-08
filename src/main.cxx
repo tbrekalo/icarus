@@ -15,9 +15,9 @@
 #include "icarus/vector.hpp"
 
 int main(void) {
-  constexpr auto kAspectRation = 16.f / 9.f;
+  constexpr auto kAspectRation = 1.0;
 
-  constexpr auto kImageHeight = 720;
+  constexpr auto kImageHeight = 400;
   constexpr auto kImageWidth =
       static_cast<std::int32_t>(kAspectRation * kImageHeight);
 
@@ -31,8 +31,8 @@ int main(void) {
       ic::Sphere{.center = ic::Vec3{0.0, -100.5, -1.0}, .radius = 100}};
 
   auto const trigs = std::vector<ic::Triangle>{ic::Triangle{
-      .points = {ic::Vec3{0.0, -2.0, -2.0}, ic::Vec3{2.0, 0.0, -2.0},
-                 ic::Vec3{0.0, 2.0, -2.0}}}};
+      .points = {ic::Vec3{0.0, -1.0, -1.0}, ic::Vec3{1.0, 0.0, -1.0},
+                 ic::Vec3{0.0, 1.0, -1.0}}}};
 
   auto world = std::vector<std::pair<ic::HittableProxy, ic::MaterialProxy>>{
       std::make_pair(ic::HittableProxy(&spheres[0]),
